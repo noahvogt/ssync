@@ -1,0 +1,7 @@
+[RCLONE]
+remote_dir =
+local_dir =
+
+[OBS]
+slides_dir =
+target_subdir =

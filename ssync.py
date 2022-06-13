@@ -6,6 +6,7 @@ import shutil
 
 from configparser import ConfigParser
 from termcolor import colored
+import colorama
 
 
 def error_msg(msg: str):
@@ -29,6 +30,7 @@ class Ssync:
             self.rclone_local_dir = config_parser["RCLONE"]["local_dir"]
             self.obs_slides_dir = config_parser["OBS"]["slides_dir"]
             self.obs_target_subdir = config_parser["OBS"]["target_subdir"]
+            self.obs_min_subdirs = int(config_parser["OBS"]["min_subdirs"])
         except KeyError:
             error_msg("configuration file 'config.ini' could not be parsed")
         log("configuration initialised")
@@ -53,6 +55,16 @@ class Ssync:
             except Exception as e:
                 error_msg("Failed to delete %s. Reason: %s" % (file_path, e))
 
+    def create_minimum_subdirs(self, count: int):
+        if count >= self.obs_min_subdirs:
+            return
+
+        for number in range(count, self.obs_min_subdirs + 1):
+            dirname = os.path.join(
+                self.obs_slides_dir, self.obs_target_subdir + " " + str(number)
+            )
+            os.mkdir(dirname)
+
     def slide_selection_iterator(self):
         iterator_prompt = "Exit now? (default=no) [y/N]: "
         dir_list_str = ""
@@ -71,10 +83,15 @@ class Ssync:
                 )
             )
             if prompt_answer.lower() == "y":
+                self.create_minimum_subdirs(index)
                 break
-            os.system("echo '{}' | fzf > {}".format(dir_list_str, tempfile_str))
 
-            with open(tempfile_str, "r") as tempfile_file_opener:
+            dir_list_str = dir_list_str.replace("\n", "\\n")
+            os.system(
+                'printf "{}" | fzf > {}'.format(dir_list_str, tempfile_str)
+            )
+
+            with open(tempfile_str, mode="r") as tempfile_file_opener:
                 chosen_slides = tempfile_file_opener.read()[:-1].strip()
 
             if len(chosen_slides) == 0:
@@ -102,6 +119,8 @@ class Ssync:
 
 
 def main():
+    colorama.init()
+
     ssync = Ssync()
     ssync.execute()
 

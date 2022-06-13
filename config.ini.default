@@ -5,3 +5,4 @@ local_dir =
 [OBS]
 slides_dir =
 target_subdir =
+min_subdirs =

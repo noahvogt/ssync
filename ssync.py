@@ -54,7 +54,7 @@ class Ssync:
                 error_msg("Failed to delete %s. Reason: %s" % (file_path, e))
 
     def slide_selection_iterator(self):
-        iterator_prompt = "Do you want to exit now? (default=no) [y/N]: "
+        iterator_prompt = "Exit now? (default=no) [y/N]: "
         dir_list_str = ""
         for directory in os.listdir(self.rclone_local_dir):
             dir_list_str += directory + "\n"
@@ -65,30 +65,30 @@ class Ssync:
         while True:
             index += 1
             prompt_answer = str(
-                input("[Song {}] ".format(index) + iterator_prompt)
+                input(
+                    "[{} {}] ".format(self.obs_target_subdir, index)
+                    + iterator_prompt
+                )
             )
             if prompt_answer.lower() == "y":
                 break
             os.system("echo '{}' | fzf > {}".format(dir_list_str, tempfile_str))
 
-            with open(tempfile_str, "r") as file_opener:
-                chosen_slides = file_opener.read()[:-1].strip()
+            with open(tempfile_str, "r") as tempfile_file_opener:
+                chosen_slides = tempfile_file_opener.read()[:-1].strip()
 
             if len(chosen_slides) == 0:
-                log("no slides chosen, skipping")
+                log("no slides chosen, skipping...")
             else:
                 log(
                     "copying slides '{}' to '{} {}'...".format(
                         chosen_slides, self.obs_target_subdir, index
                     )
                 )
-                src_dir = self.rclone_local_dir + "/" + chosen_slides
-                dest_dir = (
-                    self.obs_slides_dir
-                    + "/"
-                    + self.obs_target_subdir
-                    + " "
-                    + str(index)
+                src_dir = os.path.join(self.rclone_local_dir, chosen_slides)
+                dest_dir = os.path.join(
+                    self.obs_slides_dir,
+                    self.obs_target_subdir + " " + str(index),
                 )
                 shutil.copytree(src_dir, dest_dir)
 

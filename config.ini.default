@@ -2,6 +2,10 @@
 remote_dir =
 local_dir =
 
+[SLIDEGEN]
+path =
+dir =
+
 [OBS]
 slides_dir =
 target_subdir =

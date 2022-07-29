@@ -12,12 +12,6 @@ import colorama
 CHECKFILE = "slidegen-checkfile.txt"
 CACHEFILE = "slidegen-cachefile.txt"
 
-NULNAME = ""
-if os.name == "nt":
-    NULNAME = "NUL"
-else:
-    NULNAME = "/dev/null"
-
 def error_msg(msg: str):
     print(colored("[*] Error: {}".format(msg), "red"))
     sys.exit(1)
@@ -155,7 +149,7 @@ class Ssync:
             'rclone md5sum {} --checkfile {} > {} 2> {}'.format(
                 self.rclone_remote_dir,
                 os.path.join(self.slidegen_cache_dir, CHECKFILE),
-                NULNAME,
+                os.devnull,
                 os.path.join(self.slidegen_cache_dir, CACHEFILE),
             )
         )

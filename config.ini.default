@@ -3,8 +3,8 @@ remote_dir =
 local_dir =
 
 [SLIDEGEN]
-path =
-dir =
+exe_path =
+cache_dir =
 
 [OBS]
 slides_dir =
